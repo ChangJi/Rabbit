@@ -34,13 +34,13 @@ var GameApp = (function (_super) {
     __extends(GameApp, _super);
     function GameApp() {
         _super.call(this);
+        this.frame = 0;
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
     }
     GameApp.prototype.onAddToStage = function (event) {
-        //设置加载进度界面
-        this.loadingView = new LoadingUI();
-        this.stage.addChild(this.loadingView);
-
+        //        //设置加载进度界面
+        //        this.loadingView  = new LoadingUI();
+        //        this.stage.addChild(this.loadingView);
         //初始化Resource资源加载库
         RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
         RES.loadConfig("resource/resource.json", "resource/");
@@ -61,10 +61,13 @@ var GameApp = (function (_super) {
     */
     GameApp.prototype.onResourceLoadComplete = function (event) {
         if (event.groupName == "preload") {
-            this.stage.removeChild(this.loadingView);
+            //            this.stage.removeChild(this.loadingView);
             RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
             RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
+
+            egret.Profiler.getInstance().run(); //FPS等信息
             this.createGameScene();
+            this.addEventListener(egret.Event.ENTER_FRAME, this.enterFrameHandler, this);
         }
     };
 
@@ -73,7 +76,27 @@ var GameApp = (function (_super) {
     */
     GameApp.prototype.onResourceProgress = function (event) {
         if (event.groupName == "preload") {
-            this.loadingView.setProgress(event.itemsLoaded, event.itemsTotal);
+            //            this.loadingView.setProgress(event.itemsLoaded,event.itemsTotal);
+        }
+    };
+
+    GameApp.prototype.enterFrameHandler = function (event) {
+        this.frame++;
+        if (this.frame > 12) {
+            var snow = new Snow();
+            snow.x = Math.random() * 750;
+            snow.y = -20;
+            snow.scaleX = snow.scaleY = 0.3 + Math.random() * 0.7;
+            this.addChild(snow);
+            this.snows.push(snow);
+            this.frame = 0;
+        }
+
+        for (var i = 0; i < this.snows.length; i++) {
+            var snow = this.snows[i];
+            if (snow.isRemove && snow.parent) {
+                snow.parent.removeChild(snow);
+            }
         }
     };
 
@@ -81,50 +104,80 @@ var GameApp = (function (_super) {
     * 创建游戏场景
     */
     GameApp.prototype.createGameScene = function () {
-        var sky = this.createBitmapByName("bgImage");
+        var sky = this.createBitmapByName("bg_jpg");
         this.addChild(sky);
         var stageW = this.stage.stageWidth;
         var stageH = this.stage.stageHeight;
         sky.width = stageW;
         sky.height = stageH;
 
-        var topMask = new egret.Shape();
-        topMask.graphics.beginFill(0x000000, 0.5);
-        topMask.graphics.drawRect(0, 0, stageW, stageH);
-        topMask.graphics.endFill();
-        topMask.width = stageW;
-        topMask.height = stageH;
-        this.addChild(topMask);
+        var length = 15 + Math.random() * 10;
+        this.snows = [];
+        for (var i = 0; i < length; i++) {
+            var snow = new Snow();
+            snow.x = Math.random() * 750;
+            snow.y = Math.random() * 400;
+            snow.scaleX = snow.scaleY = 0.3 + Math.random() * 0.7;
+            this.addChild(snow);
+            this.snows.push(snow);
+        }
 
-        var icon = this.createBitmapByName("egretIcon");
-        icon.anchorX = icon.anchorY = 0.5;
-        this.addChild(icon);
-        icon.x = stageW / 2;
-        icon.y = stageH / 2 - 60;
-        icon.scaleX = 0.55;
-        icon.scaleY = 0.55;
+        var data = RES.getRes("standmc_json");
+        var texture = RES.getRes("standmc_png");
+        var monkey = new egret.MovieClip(data, texture);
+        this.addChild(monkey); //添加到显示列表
+        monkey.frameRate = 30; //设置动画的帧频
+        monkey.x = 100;
+        monkey.y = 365;
 
-        var colorLabel = new egret.TextField();
-        colorLabel.x = stageW / 2;
-        colorLabel.y = stageH / 2 + 50;
-        colorLabel.anchorX = colorLabel.anchorY = 0.5;
-        colorLabel.textColor = 0xffffff;
-        colorLabel.textAlign = "center";
-        colorLabel.text = "Hello Egret";
-        colorLabel.size = 20;
-        this.addChild(colorLabel);
+        //        monkey.scaleX=-1;
+        monkey.gotoAndPlay("stand");
 
-        var textContainer = new egret.Sprite();
-        textContainer.anchorX = textContainer.anchorY = 0.5;
-        this.addChild(textContainer);
-        textContainer.x = stageW / 2;
-        textContainer.y = stageH / 2 + 100;
-        textContainer.alpha = 0;
-
-        this.textContainer = textContainer;
-
-        //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
-        RES.getResAsync("description", this.startAnimation, this);
+        var dataRun = RES.getRes("runmc_json");
+        var textureRun = RES.getRes("runmc_png");
+        var rabbitRun = new egret.MovieClip(dataRun, textureRun);
+        this.addChild(rabbitRun);
+        rabbitRun.frameRate = 30;
+        rabbitRun.x = 100;
+        rabbitRun.y = 345;
+        rabbitRun.gotoAndPlay("runmc");
+        //        var topMask:egret.Shape = new egret.Shape();
+        //        topMask.graphics.beginFill(0x000000, 0.5);
+        //        topMask.graphics.drawRect(0, 0, stageW, stageH);
+        //        topMask.graphics.endFill();
+        //        topMask.width = stageW;
+        //        topMask.height = stageH;
+        //        this.addChild(topMask);
+        //
+        //        var icon:egret.Bitmap = this.createBitmapByName("egretIcon");
+        //        icon.anchorX = icon.anchorY = 0.5;
+        //        this.addChild(icon);
+        //        icon.x = stageW / 2;
+        //        icon.y = stageH / 2 - 60;
+        //        icon.scaleX = 0.55;
+        //        icon.scaleY = 0.55;
+        //
+        //        var colorLabel:egret.TextField = new egret.TextField();
+        //        colorLabel.x = stageW / 2;
+        //        colorLabel.y = stageH / 2 + 50;
+        //        colorLabel.anchorX = colorLabel.anchorY = 0.5;
+        //        colorLabel.textColor = 0xffffff;
+        //        colorLabel.textAlign = "center";
+        //        colorLabel.text = "Hello Egret";
+        //        colorLabel.size = 20;
+        //        this.addChild(colorLabel);
+        //
+        //        var textContainer:egret.Sprite = new egret.Sprite();
+        //        textContainer.anchorX = textContainer.anchorY = 0.5;
+        //        this.addChild(textContainer);
+        //        textContainer.x = stageW / 2;
+        //        textContainer.y = stageH / 2 + 100;
+        //        textContainer.alpha = 0;
+        //
+        //        this.textContainer = textContainer;
+        //
+        //        //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
+        //        RES.getResAsync("description",this.startAnimation,this)
     };
 
     /**
@@ -135,52 +188,6 @@ var GameApp = (function (_super) {
         var texture = RES.getRes(name);
         result.texture = texture;
         return result;
-    };
-
-    /**
-    * 描述文件加载成功，开始播放动画
-    */
-    GameApp.prototype.startAnimation = function (result) {
-        var textContainer = this.textContainer;
-        var count = -1;
-        var self = this;
-        var change = function () {
-            count++;
-            if (count >= result.length) {
-                count = 0;
-            }
-            var lineArr = result[count];
-
-            self.changeDescription(textContainer, lineArr);
-
-            var tw = egret.Tween.get(textContainer);
-            tw.to({ "alpha": 1 }, 200);
-            tw.wait(2000);
-            tw.to({ "alpha": 0 }, 200);
-            tw.call(change, this);
-        };
-
-        change();
-    };
-
-    /**
-    * 切换描述内容
-    */
-    GameApp.prototype.changeDescription = function (textContainer, lineArr) {
-        textContainer.removeChildren();
-        var w = 0;
-        for (var i = 0; i < lineArr.length; i++) {
-            var info = lineArr[i];
-            var colorLabel = new egret.TextField();
-            colorLabel.x = w;
-            colorLabel.anchorX = colorLabel.anchorY = 0;
-            colorLabel.textColor = parseInt(info["textColor"]);
-            colorLabel.text = info["text"];
-            colorLabel.size = 40;
-            textContainer.addChild(colorLabel);
-
-            w += colorLabel.width;
-        }
     };
     return GameApp;
 })(egret.DisplayObjectContainer);
