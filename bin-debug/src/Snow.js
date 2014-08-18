@@ -70,3 +70,4 @@ Snow.prototype.__class__ = "Snow";
 //        this.removeMovieClip();
 //    } // end if
 //};
+//# sourceMappingURL=Snow.js.map

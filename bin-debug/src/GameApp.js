@@ -61,13 +61,14 @@ var GameApp = (function (_super) {
     */
     GameApp.prototype.onResourceLoadComplete = function (event) {
         if (event.groupName == "preload") {
-            //            this.stage.removeChild(this.loadingView);
+            //          this.stage.removeChild(this.loadingView);
             RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
             RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
 
-            egret.Profiler.getInstance().run(); //FPS等信息
+            //            egret.Profiler.getInstance().run(); //FPS等信息
             this.createGameScene();
             this.addEventListener(egret.Event.ENTER_FRAME, this.enterFrameHandler, this);
+            this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.rabbitMove, this);
         }
     };
 
@@ -77,6 +78,12 @@ var GameApp = (function (_super) {
     GameApp.prototype.onResourceProgress = function (event) {
         if (event.groupName == "preload") {
             //            this.loadingView.setProgress(event.itemsLoaded,event.itemsTotal);
+        }
+    };
+
+    GameApp.prototype.rabbitMove = function (event) {
+        if (event.type == egret.TouchEvent.TOUCH_TAP) {
+            alert(event.localX + "..................." + event.localY);
         }
     };
 
@@ -122,25 +129,26 @@ var GameApp = (function (_super) {
             this.snows.push(snow);
         }
 
-        var data = RES.getRes("standmc_json");
-        var texture = RES.getRes("standmc_png");
-        var monkey = new egret.MovieClip(data, texture);
-        this.addChild(monkey); //添加到显示列表
-        monkey.frameRate = 30; //设置动画的帧频
-        monkey.x = 100;
-        monkey.y = 365;
-
-        //        monkey.scaleX=-1;
-        monkey.gotoAndPlay("stand");
-
-        var dataRun = RES.getRes("runmc_json");
-        var textureRun = RES.getRes("runmc_png");
-        var rabbitRun = new egret.MovieClip(dataRun, textureRun);
-        this.addChild(rabbitRun);
-        rabbitRun.frameRate = 30;
-        rabbitRun.x = 100;
-        rabbitRun.y = 345;
-        rabbitRun.gotoAndPlay("runmc");
+        var rabbit = new Rabbit();
+        this.addChild(rabbit);
+        //        var data = RES.getRes("standmc_json");//获取描述
+        //        var texture = RES.getRes("standmc_png");//获取大图
+        //        var monkey = new egret.MovieClip(data,texture);//创建电影剪辑
+        //        this.addChild(monkey);//添加到显示列表
+        //        monkey.frameRate = 30;//设置动画的帧频
+        //        monkey.x = 100;
+        //        monkey.y = 365;
+        ////        monkey.scaleX=-1;
+        //        monkey.gotoAndPlay("stand");
+        //
+        //        var dataRun = RES.getRes("runmc_json");
+        //        var textureRun = RES.getRes("runmc_png");
+        //        var rabbitRun = new egret.MovieClip(dataRun,textureRun);
+        //        this.addChild(rabbitRun);
+        //        rabbitRun.frameRate = 30;
+        //        rabbitRun.x = 100;
+        //        rabbitRun.y = 345;
+        //        rabbitRun.gotoAndPlay("runmc");
         //        var topMask:egret.Shape = new egret.Shape();
         //        topMask.graphics.beginFill(0x000000, 0.5);
         //        topMask.graphics.drawRect(0, 0, stageW, stageH);
@@ -192,3 +200,4 @@ var GameApp = (function (_super) {
     return GameApp;
 })(egret.DisplayObjectContainer);
 GameApp.prototype.__class__ = "GameApp";
+//# sourceMappingURL=GameApp.js.map
