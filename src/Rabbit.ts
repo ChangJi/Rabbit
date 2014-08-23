@@ -3,6 +3,8 @@
  */
 class Rabbit extends egret.Sprite{
     private rabbitContainer:egret.Sprite;
+    public act:String="";
+    public jump:boolean=false;
     public constructor(){
         super();
         this.createView();
@@ -30,5 +32,26 @@ class Rabbit extends egret.Sprite{
         rabbitRun.x = 100;
         rabbitRun.y = 345;
         rabbitRun.gotoAndPlay("runmc");
+    }
+    //head 2正 1反
+    public function gotoAndPlay(act:String,head:number):void
+    {
+        this.rabbitContainer.removeAllChild();
+        if(head==2)
+        {
+            this.rabbitContainer.scaleX=1;
+        }else{
+            this.rabbitContainer.scaleX=-1;
+        }
+        switch(act)
+        {
+            case "stand":
+                {
+                    
+                }
+            
+        }
+        
+        
     }
 }
