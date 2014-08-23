@@ -33,6 +33,7 @@ class GameApp extends egret.DisplayObjectContainer{
 //    private loadingView:LoadingUI;
 
     private snows:Snow[];
+    private rabbit:Rabbit;
     public constructor() {
         super();
         this.addEventListener(egret.Event.ADDED_TO_STAGE,this.onAddToStage,this);
@@ -67,8 +68,12 @@ class GameApp extends egret.DisplayObjectContainer{
 
 //            egret.Profiler.getInstance().run(); //FPS等信息
             this.createGameScene();
+            this.touchEnabled=true;
+            this.touchChildren=true;
             this.addEventListener(egret.Event.ENTER_FRAME,this.enterFrameHandler,this);
             this.addEventListener(egret.TouchEvent.TOUCH_TAP,this.rabbitMove,this);
+            this.addEventListener(egret.TouchEvent.TOUCH_BEGIN,this.rabbitBegin,this);
+            this.addEventListener(egret.TouchEvent.TOUCH_END,this.rabbitEnd,this);
         }
     }
     /**
@@ -84,10 +89,30 @@ class GameApp extends egret.DisplayObjectContainer{
     {
         if(event.type==egret.TouchEvent.TOUCH_TAP)
         {
-            alert(event.localX+"..................."+event.localY);
+            alert(event.localX+"...................."+event.localY);
         }
     }
-
+    private rabbitBegin(event:egret.TouchEvent):void
+    {
+        if(event.type==egret.TouchEvent.TOUCH_BEGIN)
+        {
+            this.addEventListener(egret.TouchEvent.TOUCH_MOVE,this.rabbitDrag,this);
+        }
+    }
+    private rabbitEnd(event:egret.TouchEvent):void
+    {
+        if(event.type==egret.TouchEvent.TOUCH_END)
+        {
+            this.removeEventListener(egret.TouchEvent.TOUCH_MOVE,this.rabbitDrag,this);
+        }
+    }
+    private rabbitDrag(event:egret.TouchEvent):void
+    {
+        if(event.type==egret.TouchEvent.TOUCH_MOVE)
+        {
+            this.rabbit.x=event.localX;
+        }
+    }
     private frame:number=0;
     private enterFrameHandler( event:egret.Event):void {
         this.frame++;
@@ -97,6 +122,7 @@ class GameApp extends egret.DisplayObjectContainer{
             snow.x =  Math.random()*750;
             snow.y = -20;
             snow.scaleX=snow.scaleY=0.3+Math.random()*0.7;
+            snow.alpha=0.5+Math.random()*0.5;
             this.addChild(snow);
             this.snows.push(snow);
             this.frame=0;
@@ -137,9 +163,11 @@ class GameApp extends egret.DisplayObjectContainer{
         }
 
 
-        var rabbit:Rabbit=new Rabbit();
-        this.addChild(rabbit);
+        this.rabbit=new Rabbit();
+        this.addChild(this.rabbit);
 
+        var bell:Bell = new Bell();
+        this.addChild(bell);
 //        var data = RES.getRes("standmc_json");//获取描述
 //        var texture = RES.getRes("standmc_png");//获取大图
 //        var monkey = new egret.MovieClip(data,texture);//创建电影剪辑

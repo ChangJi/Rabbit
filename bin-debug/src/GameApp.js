@@ -67,8 +67,12 @@ var GameApp = (function (_super) {
 
             //            egret.Profiler.getInstance().run(); //FPS等信息
             this.createGameScene();
+            this.touchEnabled = true;
+            this.touchChildren = true;
             this.addEventListener(egret.Event.ENTER_FRAME, this.enterFrameHandler, this);
             this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.rabbitMove, this);
+            this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.rabbitBegin, this);
+            this.addEventListener(egret.TouchEvent.TOUCH_END, this.rabbitEnd, this);
         }
     };
 
@@ -83,7 +87,22 @@ var GameApp = (function (_super) {
 
     GameApp.prototype.rabbitMove = function (event) {
         if (event.type == egret.TouchEvent.TOUCH_TAP) {
-            alert(event.localX + "..................." + event.localY);
+            alert(event.localX + "...................." + event.localY);
+        }
+    };
+    GameApp.prototype.rabbitBegin = function (event) {
+        if (event.type == egret.TouchEvent.TOUCH_BEGIN) {
+            this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.rabbitDrag, this);
+        }
+    };
+    GameApp.prototype.rabbitEnd = function (event) {
+        if (event.type == egret.TouchEvent.TOUCH_END) {
+            this.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.rabbitDrag, this);
+        }
+    };
+    GameApp.prototype.rabbitDrag = function (event) {
+        if (event.type == egret.TouchEvent.TOUCH_MOVE) {
+            this.rabbit.x = event.localX;
         }
     };
 
@@ -94,6 +113,7 @@ var GameApp = (function (_super) {
             snow.x = Math.random() * 750;
             snow.y = -20;
             snow.scaleX = snow.scaleY = 0.3 + Math.random() * 0.7;
+            snow.alpha = 0.5 + Math.random() * 0.5;
             this.addChild(snow);
             this.snows.push(snow);
             this.frame = 0;
@@ -129,8 +149,11 @@ var GameApp = (function (_super) {
             this.snows.push(snow);
         }
 
-        var rabbit = new Rabbit();
-        this.addChild(rabbit);
+        this.rabbit = new Rabbit();
+        this.addChild(this.rabbit);
+
+        var bell = new Bell();
+        this.addChild(bell);
         //        var data = RES.getRes("standmc_json");//获取描述
         //        var texture = RES.getRes("standmc_png");//获取大图
         //        var monkey = new egret.MovieClip(data,texture);//创建电影剪辑
