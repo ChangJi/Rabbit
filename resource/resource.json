@@ -1,7 +1,7 @@
 {
 	"groups":[
 	{
-		"keys":"bg_jpg,standmc_png,standmc_json,snow_png,runmc_png,runmc_json,bellmc_png,bellmc_json",
+		"keys":"bg_jpg,standmc_png,standmc_json,snow_png,runmc_png,runmc_json,bellmc_png,bellmc_json,jumpmc_png,jumpmc_json",
 		"name":"preload"
 	}],
 	"resources":[
@@ -44,5 +44,15 @@
 		"name":"bellmc_json",
 		"type":"json",
 		"url":"config/bellmc.json"
+	},
+	{
+		"name":"jumpmc_png",
+		"type":"image",
+		"url":"assets/jumpmc.png"
+	},
+	{
+		"name":"jumpmc_json",
+		"type":"json",
+		"url":"config/jumpmc.json"
 	}]
 }

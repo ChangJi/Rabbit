@@ -5,39 +5,39 @@ class Bell extends egret.Sprite
 {
     public hit:Boolean=false;
     private ys:number=0;
-    private bell:MovieClip;
+    private bell:egret.MovieClip;
+    public isRemove:boolean=false;
     public constructor(){
         super();
         this.createView();
-        this.addEventListsner(egret.EnterFrame,this.enterFrame);
+        this.addEventListener(egret.Event.ENTER_FRAME,this.enterFrameHandler,this);
     }
     private createView():void
     {
         var dataBell = RES.getRes("bellmc_json");//获取描述
         var textureBell = RES.getRes("bellmc_png");//获取大图
-        bell = new egret.MovieClip(dataBell,textureBell);//创建电影剪辑
-        this.addChild(bell);//添加到显示列表
-        bell.frameRate = 30;//设置动画的帧频
-        bell.x = 100;
-        bell.y = 100;
-//        monkey.scaleX=-1;
-        bell.gotoAndPlay("bell");
-        
-        ys=Data.bellspeed;
+        this.bell = new egret.MovieClip(dataBell,textureBell);//创建电影剪辑
+        this.addChild(this.bell);//添加到显示列表
+        this.bell.frameRate = 30;//设置动画的帧频
+        this.bell.gotoAndPlay("bell");
+
+        this.ys=RabbitData.bellspeed;
     }
-    private enterFrame(event:egret.Event):void
+    private enterFrameHandler(event:egret.Event):void
     {
-        this.bell.y+=ys;
-        if(hit)
+        this.bell.y+=this.ys;
+        if(this.hit)
         {
-            Data.bells.remove(this.bell);
+//           RabbitData.bells.splice()
             this.bell.gotoAndPlay("hit");
-        }else if(this.y>300){
-            this.bell.alpha-=0.1;
+        }else if(this.bell.y>300){
+            this.bell.alpha-=0.5;
             if(this.bell.alpha<0)
             {
-                Data.bells.remove(this.bell);
-                this.removeChild(this.bell);
+                this.isRemove=true;
+//               RabbitData.bells.remove(this.bell);
+                if(this.bell.parent)
+                    this.bell.parent.removeChild(this.bell);
             }
         }
     }

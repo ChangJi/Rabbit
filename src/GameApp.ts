@@ -34,6 +34,10 @@ class GameApp extends egret.DisplayObjectContainer{
 
     private snows:Snow[];
     private rabbit:Rabbit;
+    private Vy:number=0;
+    private mouseX:number=0;
+    private yLand:number=0;
+    private oldX:number=0;
     public constructor() {
         super();
         this.addEventListener(egret.Event.ADDED_TO_STAGE,this.onAddToStage,this);
@@ -66,14 +70,15 @@ class GameApp extends egret.DisplayObjectContainer{
             RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE,this.onResourceLoadComplete,this);
             RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS,this.onResourceProgress,this);
 
-//            egret.Profiler.getInstance().run(); //FPS等信息
+            egret.Profiler.getInstance().run(); //FPS等信息
             this.createGameScene();
             this.touchEnabled=true;
             this.touchChildren=true;
             this.addEventListener(egret.Event.ENTER_FRAME,this.enterFrameHandler,this);
             this.addEventListener(egret.TouchEvent.TOUCH_TAP,this.rabbitMove,this);
             this.addEventListener(egret.TouchEvent.TOUCH_BEGIN,this.rabbitBegin,this);
-            this.addEventListener(egret.TouchEvent.TOUCH_END,this.rabbitEnd,this);
+//            this.addEventListener(egret.TouchEvent.TOUCH_END,this.rabbitEnd,this);
+            this.addEventListener(egret.TouchEvent.TOUCH_MOVE,this.rabbitDrag,this);
         }
     }
     /**
@@ -89,32 +94,124 @@ class GameApp extends egret.DisplayObjectContainer{
     {
         if(event.type==egret.TouchEvent.TOUCH_TAP)
         {
-            alert(event.localX+"...................."+event.localY);
+//            alert(event.localX+"...................."+event.localY);
+            if(this.rabbit.jump==false&&event.localY<300)
+            {
+                this.rabbit.jump = true;
+                this.Vy = RabbitData.jumppower;
+            }
         }
     }
     private rabbitBegin(event:egret.TouchEvent):void
     {
         if(event.type==egret.TouchEvent.TOUCH_BEGIN)
         {
-            this.addEventListener(egret.TouchEvent.TOUCH_MOVE,this.rabbitDrag,this);
+            this.mouseX=event.localX;
         }
     }
-    private rabbitEnd(event:egret.TouchEvent):void
-    {
-        if(event.type==egret.TouchEvent.TOUCH_END)
-        {
-            this.removeEventListener(egret.TouchEvent.TOUCH_MOVE,this.rabbitDrag,this);
-        }
-    }
+//    private rabbitEnd(event:egret.TouchEvent):void
+//    {
+//        if(event.type==egret.TouchEvent.TOUCH_END)
+//        {
+//            this.removeEventListener(egret.TouchEvent.TOUCH_MOVE,this.rabbitDrag,this);
+//        }
+//    }
     private rabbitDrag(event:egret.TouchEvent):void
     {
         if(event.type==egret.TouchEvent.TOUCH_MOVE)
         {
-            this.rabbit.x=event.localX;
+            this.mouseX=event.localX;
         }
     }
     private frame:number=0;
+    private bellFrame:number=0;
+    private head:number=1;
     private enterFrameHandler( event:egret.Event):void {
+
+        var preAct:String=this.rabbit.act;
+        var preHead:number=this.head;
+
+        if(this.rabbit.jump==true){
+            if(this.mouseX<this.rabbit.x)
+            {
+                this.head=2;
+            }else if(this.mouseX>this.rabbit.x){
+                this.head=1;
+            }
+            var nx:number=this.rabbit.x + (this.mouseX - this.rabbit.x) / 8;
+            nx = Math.max(nx,0);
+            nx = Math.min(nx,750);
+            this.rabbit.x=nx;
+            this.rabbit.act="jump";
+            this.Vy=this.Vy+RabbitData.grav;
+            var ny:number=this.rabbit.y+this.Vy;
+            if(ny>this.yLand)
+            {
+                ny = this.yLand;
+                this.Vy = 0;
+                this.rabbit.jump = false;
+                this.rabbit.act = "run";
+            }
+            this.rabbit.y=ny;
+            var i = 0;
+            while (i < RabbitData.bells.length)
+            {
+                var it =  RabbitData.bells[i];
+                if (GameUtils.hitTest(it,this.rabbit))
+                {
+                    alert("..............hit...........");
+                    this.Vy = RabbitData.bouncepower;
+                    this.rabbit.gotoJumpPlay();
+                    it.hit = true;
+                }
+                ++i;
+            }
+        }else{
+            var oldX:number = this.rabbit.x;
+            var newX:number=this.mouseX;
+            newX = Math.max(this.mouseX,0);
+            newX = Math.min(newX, 750);
+            var dx:number =newX - oldX;
+            if (Math.abs(dx) > 1)
+            {
+                if (dx > 0)
+                {
+                    this.head= 1;
+                }
+                else
+                {
+                    this.head = 2;
+                }
+            }
+
+            if (Math.abs(dx) > 10)  //临界点10 频繁切换问题
+            {
+                var rabbitX:number;
+                if (dx > 0)
+                {
+                    rabbitX  = this.rabbit.x + RabbitData.pspeed;
+                }else if(dx<0){
+                    rabbitX = this.rabbit.x - RabbitData.pspeed;
+                }else if(dx=0){
+                }
+                this.rabbit.act = "run";
+                this.rabbit.x = rabbitX;
+            }else{
+                this.rabbit.act = "stand";
+            }
+
+//            if (oldX == this.rabbit.x||this.rabbit.x == 0 || this.rabbit.x == 750)
+//            {
+//                    this.rabbit.act = "stand";
+//            }
+        }
+        if(preAct!=this.rabbit.act||preHead!=this.head)
+        {
+            this.rabbit.gotoAndPlay(this.rabbit.act,this.head);
+        }
+
+
+
         this.frame++;
         if(this.frame>12)
         {
@@ -128,12 +225,33 @@ class GameApp extends egret.DisplayObjectContainer{
             this.frame=0;
         }
 
+        this.bellFrame++;
+        if(this.bellFrame>60)
+        {
+            var bell:Bell=new Bell();
+            bell.x = Math.random()*750;
+            bell.y = -20;
+            this.addChild(bell);
+            RabbitData.bells.push(bell);
+            this.bellFrame=0;
+        }
+
         for(var i:number=0;i<this.snows.length;i++)
         {
             var snow:Snow=this.snows[i];
             if(snow.isRemove&&snow.parent)
             {
                 snow.parent.removeChild(snow);
+                this.snows.splice(i,1);
+            }
+        }
+        for(var j:number=0;j<RabbitData.bells.length;j++)
+        {
+            var bell:Bell=RabbitData.bells[j];
+            if(bell.isRemove&&bell.parent)
+            {
+                bell.parent.removeChild(bell);
+                RabbitData.bells.splice(j,1);
             }
         }
     }
@@ -164,10 +282,13 @@ class GameApp extends egret.DisplayObjectContainer{
 
 
         this.rabbit=new Rabbit();
+        this.rabbit.x=100;
+        this.rabbit.y=345;
         this.addChild(this.rabbit);
-
-        var bell:Bell = new Bell();
-        this.addChild(bell);
+        this.mouseX=this.rabbit.x;
+        this.yLand=this.rabbit.y;
+//        var bell:Bell = new Bell();
+//        this.addChild(bell);
 //        var data = RES.getRes("standmc_json");//获取描述
 //        var texture = RES.getRes("standmc_png");//获取大图
 //        var monkey = new egret.MovieClip(data,texture);//创建电影剪辑
