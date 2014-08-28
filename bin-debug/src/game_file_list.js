@@ -1,6 +1,6 @@
 var game_file_list = [
-    "Bell.js",
     "RabbitData.js",
+    "Bell.js",
     "ResUtils.js",
     "GameUtils.js",
     "LoadingUI.js",

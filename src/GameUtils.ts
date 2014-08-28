@@ -8,17 +8,16 @@ class GameUtils{
         result.texture = texture;
         return result;
     }
-    public static hitTest(obj1:egret.DisplayObject,obj2:egret.DisplayObject):boolean
+    public static hitTest(obj1:egret.DisplayObject,obj2:Bell):boolean
     {
         var rect1:egret.Rectangle = obj1.getBounds();
         var rect2:egret.Rectangle = obj2.getBounds();
         rect1.x = obj1.x;
         rect1.y = obj1.y;
 
-        var p:Point=obj2.localToGlobal(new Point(obj2.bell.x,obj2.bell.y));
+        var p:egret.Point=obj2.localToGlobal(obj2.bell.x,obj2.bell.y);
         rect2.x = p.x;
         rect2.y = p.y;
-
         return rect1.intersects(rect2);
     }
 }

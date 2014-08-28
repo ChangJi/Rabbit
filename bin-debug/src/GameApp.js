@@ -148,8 +148,8 @@ var GameApp = (function (_super) {
             var i = 0;
             while (i < RabbitData.bells.length) {
                 var it = RabbitData.bells[i];
-                if (GameUtils.hitTest(it, this.rabbit)) {
-                    alert("..............hit...........");
+                if (GameUtils.hitTest(this.rabbit, it)) {
+                    //                    alert("..............hit...........");
                     this.Vy = RabbitData.bouncepower;
                     this.rabbit.gotoJumpPlay();
                     it.hit = true;
@@ -171,6 +171,11 @@ var GameApp = (function (_super) {
             }
 
             if (Math.abs(dx) > 10) {
+                this.rabbit.act = "run";
+            } else {
+                this.rabbit.act = "stand";
+            }
+            if (Math.abs(dx) > 15 && this.rabbit.act == "run") {
                 var rabbitX;
                 if (dx > 0) {
                     rabbitX = this.rabbit.x + RabbitData.pspeed;
@@ -178,7 +183,8 @@ var GameApp = (function (_super) {
                     rabbitX = this.rabbit.x - RabbitData.pspeed;
                 } else if (dx = 0) {
                 }
-                this.rabbit.act = "run";
+
+                //                this.rabbit.act = "run";
                 this.rabbit.x = rabbitX;
             } else {
                 this.rabbit.act = "stand";

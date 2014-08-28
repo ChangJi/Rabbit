@@ -31,7 +31,7 @@ var Bell = (function (_super) {
         this.bell.y += this.ys;
         if (this.hit) {
             //           RabbitData.bells.splice()
-            this.bell.gotoAndPlay("hit");
+            //            this.bell.gotoAndPlay("hit");
         } else if (this.bell.y > 300) {
             this.bell.alpha -= 0.5;
             if (this.bell.alpha < 0) {

@@ -16,13 +16,9 @@ var GameUtils = (function () {
         rect1.x = obj1.x;
         rect1.y = obj1.y;
 
-        //        rect1.width=obj1.width;
-        //        rect1.height=obj1.height;
-        rect2.x = obj2.x;
-        rect2.y = obj2.y;
-
-        //        rect2.width=obj2.width;
-        //        rect2.height=obj2.height;
+        var p = obj2.localToGlobal(obj2.bell.x, obj2.bell.y);
+        rect2.x = p.x;
+        rect2.y = p.y;
         return rect1.intersects(rect2);
     };
     return GameUtils;

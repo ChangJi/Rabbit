@@ -5,7 +5,7 @@ class Bell extends egret.Sprite
 {
     public hit:Boolean=false;
     private ys:number=0;
-    private bell:egret.MovieClip;
+    public bell:egret.MovieClip;
     public isRemove:boolean=false;
     public constructor(){
         super();
@@ -29,7 +29,7 @@ class Bell extends egret.Sprite
         if(this.hit)
         {
 //           RabbitData.bells.splice()
-            this.bell.gotoAndPlay("hit");
+//            this.bell.gotoAndPlay("hit");
         }else if(this.bell.y>300){
             this.bell.alpha-=0.5;
             if(this.bell.alpha<0)
