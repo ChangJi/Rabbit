@@ -66,7 +66,8 @@ var egret;
 
                     var scaleModeEnum = {};
                     scaleModeEnum[egret.StageScaleMode.NO_SCALE] = new egret.NoScale();
-                    scaleModeEnum[egret.StageScaleMode.SHOW_ALL] = new egret.FixedWidth();
+                    scaleModeEnum[egret.StageScaleMode.SHOW_ALL] = new egret.ShowAll();
+                    scaleModeEnum[egret.StageScaleMode.NO_BORDER] = new egret.FixedWidth();
                     var content = scaleModeEnum[value];
                     if (!content) {
                         throw new Error("使用了尚未实现的ScaleMode");

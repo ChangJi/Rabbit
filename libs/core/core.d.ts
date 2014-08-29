@@ -2237,16 +2237,6 @@ declare module egret {
         * @param designedResolutionHeigh {any}
         */
         public _apply(view: any, designedResolutionWidth: any, designedResolutionHeight: any): void;
-        /**
-        * @method egret.ResolutionPolicy#setContainerStrategy
-        * @param containerStg {any}
-        */
-        public setContainerStrategy(containerStg: any): void;
-        /**
-        * @method egret.ResolutionPolicy#setContentStrategy
-        * @param contentStg {any}
-        */
-        public setContentStrategy(contentStg: any): void;
     }
     /**
     * @class egret.ContainerStrategy
@@ -2333,12 +2323,6 @@ declare module egret {
         * @param minHeight 最终游戏内适配的最小stageHeight，默认没有最小高度
         */
         constructor(minHeight?: number);
-        /**
-        * @method egret.FixedWidth#_apply
-        * @param delegate {egret.StageDelegate}
-        * @param designedResolutionWidth {any}
-        * @param designedResolutionHeight {any}
-        */
         public _apply(delegate: StageDelegate, designedResolutionWidth: number, designedResolutionHeight: number): void;
     }
     /**
@@ -2364,6 +2348,16 @@ declare module egret {
     * @extends egret.ContentStrategy
     */
     class NoScale extends ContentStrategy {
+        constructor();
+        /**
+        * @method egret.NoScale#_apply
+        * @param delegate {egret.StageDelegate}
+        * @param designedResolutionWidth {number}
+        * @param designedResolutionHeight {number}
+        */
+        public _apply(delegate: StageDelegate, designedResolutionWidth: number, designedResolutionHeight: number): void;
+    }
+    class ShowAll extends ContentStrategy {
         constructor();
         /**
         * @method egret.NoScale#_apply
@@ -3182,6 +3176,7 @@ declare module egret {
 */
 declare module egret {
     class StageScaleMode {
+        static NO_BORDER: string;
         static NO_SCALE: string;
         static SHOW_ALL: string;
     }
@@ -4140,6 +4135,11 @@ declare module egret {
         * @param height {number}
         */
         public _open(x: number, y: number, width?: number, height?: number): void;
+        private getStageDelegateDiv();
+        /**
+        * @method egret.StageText#add
+        */
+        public _add(): void;
         /**
         * @method egret.StageText#remove
         */
@@ -4924,9 +4924,9 @@ declare module egret {
         * 如果该容器是某个 App 容器，该容器将处理该事件。
         * @method egret.ExternalInterface#call
         * @param functionName {string}
-        * @param arguments
+        * @param value {string}
         */
-        static call(functionName: String, ...args: any[]): void;
+        static call(functionName: string, value: string): void;
         /**
         * 添加外层容器调用侦听，该容器将传递一个字符串给 Egret 容器
         * 如果该容器是 HTML 页，则此方法不可用。
@@ -4934,7 +4934,7 @@ declare module egret {
         * @param functionName {string}
         * @param listener {Function}
         */
-        static addCallback(functionName: String, listener: Function): void;
+        static addCallback(functionName: string, listener: Function): void;
     }
 }
 /**
@@ -6381,7 +6381,7 @@ declare module RES {
     * 异步方式获取配置里的资源。只要是配置文件里存在的资源，都可以通过异步方式获取。
     * @method RES.getResAsync
     * @param key {string} 对应配置文件里的name属性或sbuKeys属性的一项。
-    * @param compFunc {Function} 回调函数。示例：compFunc(data):void,若设置了other参数则为:compFunc(data,other):void。
+    * @param compFunc {Function} 回调函数。示例：compFunc(data,key):void。
     * @param thisObject {any} 回调函数的this引用
     */
     function getResAsync(key: string, compFunc: Function, thisObject: any): void;
@@ -6389,7 +6389,7 @@ declare module RES {
     * 通过完整URL方式获取外部资源。
     * @method RES.getResByUrl
     * @param url {string} 要加载文件的外部路径。
-    * @param compFunc {Function} 回调函数。示例：compFunc(data):void,若设置了other参数则为:compFunc(data,other):void。
+    * @param compFunc {Function} 回调函数。示例：compFunc(data,url):void。
     * @param thisObject {any} 回调函数的this引用
     * @param type {string} 文件类型(可选)。请使用ResourceItem类中定义的静态常量。若不设置将根据文件扩展名生成。
     */

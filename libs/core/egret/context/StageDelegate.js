@@ -118,8 +118,8 @@ var egret;
     */
     var ResolutionPolicy = (function () {
         function ResolutionPolicy(containerStg, contentStg) {
-            this.setContainerStrategy(containerStg);
-            this.setContentStrategy(contentStg);
+            this._containerStrategy = containerStg;
+            this._contentStrategy = contentStg;
         }
         /**
         * @method egret.ResolutionPolicy#init
@@ -139,24 +139,6 @@ var egret;
         ResolutionPolicy.prototype._apply = function (view, designedResolutionWidth, designedResolutionHeight) {
             this._containerStrategy._apply(view, designedResolutionWidth, designedResolutionHeight);
             this._contentStrategy._apply(view, designedResolutionWidth, designedResolutionHeight);
-        };
-
-        /**
-        * @method egret.ResolutionPolicy#setContainerStrategy
-        * @param containerStg {any}
-        */
-        ResolutionPolicy.prototype.setContainerStrategy = function (containerStg) {
-            if (containerStg instanceof ContainerStrategy)
-                this._containerStrategy = containerStg;
-        };
-
-        /**
-        * @method egret.ResolutionPolicy#setContentStrategy
-        * @param contentStg {any}
-        */
-        ResolutionPolicy.prototype.setContentStrategy = function (contentStg) {
-            if (contentStg instanceof ContentStrategy)
-                this._contentStrategy = contentStg;
         };
         return ResolutionPolicy;
     })();
@@ -330,12 +312,6 @@ var egret;
             _super.call(this);
             this.minHeight = minHeight;
         }
-        /**
-        * @method egret.FixedWidth#_apply
-        * @param delegate {egret.StageDelegate}
-        * @param designedResolutionWidth {any}
-        * @param designedResolutionHeight {any}
-        */
         FixedWidth.prototype._apply = function (delegate, designedResolutionWidth, designedResolutionHeight) {
             var canvas = document.getElementById(StageDelegate.canvas_name);
             var container = document.getElementById(StageDelegate.canvas_div_name);
@@ -430,4 +406,45 @@ var egret;
     })(ContentStrategy);
     egret.NoScale = NoScale;
     NoScale.prototype.__class__ = "egret.NoScale";
+
+    var ShowAll = (function (_super) {
+        __extends(ShowAll, _super);
+        function ShowAll() {
+            _super.call(this);
+        }
+        /**
+        * @method egret.NoScale#_apply
+        * @param delegate {egret.StageDelegate}
+        * @param designedResolutionWidth {number}
+        * @param designedResolutionHeight {number}
+        */
+        ShowAll.prototype._apply = function (delegate, designedResolutionWidth, designedResolutionHeight) {
+            var canvas = document.getElementById(StageDelegate.canvas_name);
+            var container = document.getElementById(StageDelegate.canvas_div_name);
+            var viewPortWidth = document.documentElement.clientWidth;
+            var viewPortHeight = document.documentElement.clientHeight;
+
+            var scale = (viewPortWidth / designedResolutionWidth < viewPortHeight / designedResolutionHeight) ? viewPortWidth / designedResolutionWidth : viewPortHeight / designedResolutionHeight;
+            var designW = designedResolutionWidth;
+            var designH = designedResolutionHeight;
+
+            var viewPortWidth = designW * scale;
+            var viewPortHeight = designH * scale;
+
+            var scale2 = 1;
+
+            canvas.width = designW;
+            canvas.height = designH / scale2;
+            canvas.style.width = (viewPortWidth * scale2) + "px";
+            canvas.style.height = viewPortHeight + "px";
+            canvas.style.top = Math.floor((document.documentElement.clientHeight - viewPortHeight) / 2) + "px";
+            container.style.width = (viewPortWidth * scale2) + "px";
+            container.style.height = viewPortHeight + "px";
+            delegate._scaleX = scale * scale2;
+            delegate._scaleY = scale * scale2;
+        };
+        return ShowAll;
+    })(ContentStrategy);
+    egret.ShowAll = ShowAll;
+    ShowAll.prototype.__class__ = "egret.ShowAll";
 })(egret || (egret = {}));

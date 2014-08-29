@@ -157,22 +157,7 @@ var egret;
                 if (!this.delayTouchBeginEvent) {
                     return;
                 }
-                event.stopPropagation();
-                var evt = this.cloneTouchEvent(event);
-                this.delayTouchEndEvent = evt;
                 this.onTouchBeginTimer();
-                if (!this.touchEndTimer) {
-                    this.touchEndTimer = new egret.Timer(100, 1);
-                    this.touchEndTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.onTouchEndTimer, this);
-                }
-                this.touchEndTimer.start();
-            };
-
-            Scroller.prototype.onTouchEndTimer = function (e) {
-                this.touchEndTimer.stop();
-                var event = this.delayTouchEndEvent;
-                this.delayTouchEndEvent = null;
-                this.dispatchPropagationEvent(event);
             };
 
             Scroller.prototype.dispatchPropagationEvent = function (event) {
@@ -214,10 +199,6 @@ var egret;
                         }
                     }
                     target = target.parent;
-                }
-                if (this.delayTouchEndEvent) {
-                    this.delayTouchEndEvent = null;
-                    this.touchEndTimer.stop();
                 }
                 event.stopPropagation();
                 var evt = this.cloneTouchEvent(event);
@@ -330,6 +311,9 @@ var egret;
             };
 
             Scroller.prototype.onTouchMove = function (event) {
+                if (this._currentTouchX == event.stageX && this._currentTouchY == event.stageY) {
+                    return;
+                }
                 this._currentTouchX = event.stageX;
                 this._currentTouchY = event.stageY;
                 if (this.delayTouchBeginEvent) {

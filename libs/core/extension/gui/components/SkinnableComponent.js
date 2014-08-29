@@ -53,7 +53,6 @@ var egret;
                 _super.call(this);
                 /**
                 * 主机组件标识符。用于唯一确定一个组件的名称。
-                * 在解析skinName时，会把此属性的值传递给ISkinAdapter.getSkin()方法，以参与皮肤解析的规则判断。
                 * 用户自定义的组件若不对此属性赋值，将会继承父级的标识符定义。
                 * @member {string} egret.gui.SkinnableComponent#hostComponentKey
                 */
@@ -63,6 +62,7 @@ var egret;
                 */
                 this._skinNameExplicitlySet = false;
                 this.createChildrenCalled = false;
+                this.skinLayoutEnabled = false;
                 //========================皮肤视图状态=====================start=======================
                 this.stateIsDirty = false;
                 this._autoMouseEnabled = true;
@@ -79,7 +79,7 @@ var egret;
                 /**
                 * 皮肤标识符。可以为Class,String,或DisplayObject实例等任意类型，具体规则由项目注入的素材适配器决定，
                 * 适配器根据此属性值解析获取对应的显示对象，并赋值给skin属性。
-                * @member egret.gui.SkinnableComponent#skinName
+                * @member {string} egret.gui.SkinnableComponent#skinName
                 */
                 get: function () {
                     return this._skinName;
@@ -97,18 +97,6 @@ var egret;
                 configurable: true
             });
 
-
-            Object.defineProperty(SkinnableComponent.prototype, "skin", {
-                /**
-                * 皮肤对象实例。
-                * @member egret.gui.SkinnableComponent#skin
-                */
-                get: function () {
-                    return this._skin;
-                },
-                enumerable: true,
-                configurable: true
-            });
 
             /**
             * @method egret.gui.SkinnableComponent#createChildren
@@ -129,6 +117,45 @@ var egret;
                 }
 
                 var skin = adapter.getSkin(this._skinName, this.hostComponentKey);
+                if (!skin) {
+                    var theme = SkinnableComponent._defaultTheme;
+                    if (theme) {
+                        skin = theme.getDefaultSkin(this);
+                    }
+                }
+                this._setSkin(skin);
+            };
+
+            /**
+            * 获取皮肤适配器
+            */
+            SkinnableComponent.prototype.getSkinAdapter = function () {
+                var adapter;
+                try  {
+                    adapter = egret.Injector.getInstance("egret.gui.ISkinAdapter");
+                } catch (e) {
+                    adapter = new gui.DefaultSkinAdapter();
+                }
+                SkinnableComponent.skinAdapter = adapter;
+                return adapter;
+            };
+
+            Object.defineProperty(SkinnableComponent.prototype, "skin", {
+                /**
+                * 皮肤对象实例。
+                * @member egret.gui.SkinnableComponent#skin
+                */
+                get: function () {
+                    return this._skin;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            /**
+            * 设置皮肤
+            */
+            SkinnableComponent.prototype._setSkin = function (skin) {
                 var oldSkin = this._skin;
                 this.detachSkin(oldSkin);
                 if (oldSkin instanceof egret.DisplayObject) {
@@ -150,20 +177,6 @@ var egret;
             };
 
             /**
-            * 获取皮肤适配器
-            */
-            SkinnableComponent.prototype.getSkinAdapter = function () {
-                var adapter;
-                try  {
-                    adapter = egret.Injector.getInstance("egret.gui.ISkinAdapter");
-                } catch (e) {
-                    adapter = new gui.DefaultSkinAdapter();
-                }
-                SkinnableComponent.skinAdapter = adapter;
-                return adapter;
-            };
-
-            /**
             * 附加皮肤
             * @method egret.gui.SkinnableComponent#attachSkin
             * @param skin {any}
@@ -174,10 +187,10 @@ var egret;
                     newSkin.hostComponent = this;
                     this.findSkinParts();
                 }
-                if (skin && "hostComponent" in skin && skin instanceof egret.DisplayObject)
-                    this._setSkinLayoutEnabled(false);
+                if (skin && !(skin instanceof egret.DisplayObject))
+                    this.skinLayoutEnabled = true;
                 else
-                    this._setSkinLayoutEnabled(true);
+                    this.skinLayoutEnabled = false;
             };
 
             /**
@@ -386,26 +399,8 @@ var egret;
                 }
             };
 
-            /**
-            * 启用或禁用组件自身的布局。通常用在当组件的皮肤不是ISkinPartHost，又需要自己创建子项并布局时。
-            */
-            SkinnableComponent.prototype._setSkinLayoutEnabled = function (value) {
-                var hasLayout = (this.skinLayout != null);
-                if (hasLayout == value)
-                    return;
-                if (value) {
-                    this.skinLayout = new gui.SkinBasicLayout();
-                    this.skinLayout.target = this;
-                } else {
-                    this.skinLayout.target = null;
-                    this.skinLayout = null;
-                }
-                this.invalidateSize();
-                this.invalidateDisplayList();
-            };
-
             SkinnableComponent.prototype._childXYChanged = function () {
-                if (this.skinLayout) {
+                if (this.skinLayoutEnabled) {
                     this.invalidateSize();
                     this.invalidateDisplayList();
                 }
@@ -416,42 +411,17 @@ var egret;
                 var skin = this._skin;
                 if (!skin)
                     return;
-                var isDisplayObject = (skin instanceof egret.DisplayObject);
-                if (isDisplayObject) {
-                    if (skin && "preferredWidth" in skin) {
-                        this.measuredWidth = (skin).preferredWidth;
-                        this.measuredHeight = (skin).preferredHeight;
+                if (this.skinLayoutEnabled) {
+                    skin.measure();
+                    this.measuredWidth = skin.preferredWidth;
+                    this.measuredHeight = skin.preferredHeight;
+                } else {
+                    if ("preferredWidth" in skin) {
+                        this.measuredWidth = skin.preferredWidth;
+                        this.measuredHeight = skin.preferredHeight;
                     } else {
                         this.measuredWidth = skin.width;
                         this.measuredHeight = skin.height;
-                    }
-                }
-                if (this.skinLayout) {
-                    this.skinLayout.measure();
-                }
-                if (!isDisplayObject) {
-                    var measuredW = this.measuredWidth;
-                    var measuredH = this.measuredHeight;
-                    try  {
-                        if (!isNaN(skin.width))
-                            measuredW = Math.ceil(skin.width);
-                        if (!isNaN(skin.height))
-                            measuredH = Math.ceil(skin.height);
-                        if (skin.hasOwnProperty("minWidth") && measuredW < skin.minWidth) {
-                            measuredW = skin.minWidth;
-                        }
-                        if (skin.hasOwnProperty("maxWidth") && measuredW > skin.maxWidth) {
-                            measuredW = skin.maxWidth;
-                        }
-                        if (skin.hasOwnProperty("minHeight") && measuredH < skin.minHeight) {
-                            measuredH = skin.minHeight;
-                        }
-                        if (skin.hasOwnProperty("maxHeight") && measuredH > skin.maxHeight) {
-                            measuredH = skin.maxHeight;
-                        }
-                        this.measuredWidth = measuredW;
-                        this.measuredHeight = measuredH;
-                    } catch (e) {
                     }
                 }
             };
@@ -465,15 +435,14 @@ var egret;
                 _super.prototype.updateDisplayList.call(this, unscaledWidth, unscaledHeight);
                 var skin = this._skin;
                 if (skin) {
-                    if ("setLayoutBoundsSize" in skin) {
+                    if (this.skinLayoutEnabled) {
+                        skin.updateDisplayList(unscaledWidth, unscaledHeight);
+                    } else if ("setLayoutBoundsSize" in skin) {
                         (skin).setLayoutBoundsSize(unscaledWidth, unscaledHeight);
                     } else if (skin instanceof egret.DisplayObject) {
                         skin.scaleX = skin.width == 0 ? 1 : unscaledWidth / skin.width;
                         skin.scaleY = skin.height == 0 ? 1 : unscaledHeight / skin.height;
                     }
-                }
-                if (this.skinLayout) {
-                    this.skinLayout.updateDisplayList(unscaledWidth, unscaledHeight);
                 }
             };
 

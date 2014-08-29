@@ -49,6 +49,7 @@ var egret;
         }
         TextInput.prototype._onAddToStage = function () {
             _super.prototype._onAddToStage.call(this);
+            this.stageText._add();
             this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onMouseDownHandler, this);
         };
 

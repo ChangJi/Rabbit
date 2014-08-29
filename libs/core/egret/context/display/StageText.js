@@ -109,21 +109,31 @@ var egret;
 
             div.appendChild(inputElement);
 
+            this.div = div;
+            this.inputElement = inputElement;
+        };
+
+        StageText.prototype.getStageDelegateDiv = function () {
             var stageDelegateDiv = egret.Browser.getInstance().$("#StageDelegateDiv");
             if (!stageDelegateDiv) {
-                //                var canvas = document.getElementById(egret.StageDelegate.canvas_name);
                 stageDelegateDiv = egret.Browser.getInstance().$new("div");
                 stageDelegateDiv.id = "StageDelegateDiv";
-
-                //                stageDelegateDiv.style.width = canvas.style.width;
-                //                stageDelegateDiv.style.height = canvas.style.height;
                 var container = document.getElementById(egret.StageDelegate.canvas_div_name);
                 container.appendChild(stageDelegateDiv);
                 stageDelegateDiv.transforms();
             }
-            stageDelegateDiv.appendChild(div);
-            this.div = div;
-            this.inputElement = inputElement;
+            return stageDelegateDiv;
+        };
+
+        /**
+        * @method egret.StageText#add
+        */
+        StageText.prototype._add = function () {
+            var div = this.div;
+            if (div && !div.parentNode) {
+                var stageDelegateDiv = this.getStageDelegateDiv();
+                stageDelegateDiv.appendChild(div);
+            }
         };
 
         /**
