@@ -128,6 +128,50 @@ class GameApp extends egret.DisplayObjectContainer{
     private head:number=1;
     private enterFrameHandler( event:egret.Event):void {
 
+        for(var i:number=0;i<this.snows.length;i++)
+        {
+            var snow:Snow=this.snows[i];
+            if(snow.isRemove&&snow.parent)
+            {
+                snow.parent.removeChild(snow);
+                this.snows.splice(i,1);
+            }
+        }
+        for(var j:number=0;j<RabbitData.bells.length;j++)
+        {
+            var bell:Bell=RabbitData.bells[j];
+            if(bell.isRemove&&bell.parent)
+            {
+                bell.parent.removeChild(bell);
+                RabbitData.bells.splice(j,1);
+            }
+        }
+
+        this.frame++;
+        if(this.frame>12)
+        {
+            var snow:Snow = new Snow();
+            snow.x =  Math.random()*750;
+            snow.y = -20;
+            snow.scaleX=snow.scaleY=0.3+Math.random()*0.7;
+            snow.alpha=0.5+Math.random()*0.5;
+            this.addChild(snow);
+            this.snows.push(snow);
+            this.frame=0;
+        }
+
+        this.bellFrame++;
+        if(this.bellFrame>60)
+        {
+            var bell:Bell=Bell.produce("bell");
+            bell.x = Math.random()*750;
+            bell.y = -20;
+            this.addChild(bell);
+            RabbitData.bells.push(bell);
+            this.bellFrame=0;
+        }
+
+
         var preAct:String=this.rabbit.act;
         var preHead:number=this.head;
 
@@ -216,50 +260,6 @@ class GameApp extends egret.DisplayObjectContainer{
             this.rabbit.gotoAndPlay(this.rabbit.act,this.head);
         }
 
-
-
-        this.frame++;
-        if(this.frame>12)
-        {
-            var snow:Snow = new Snow();
-            snow.x =  Math.random()*750;
-            snow.y = -20;
-            snow.scaleX=snow.scaleY=0.3+Math.random()*0.7;
-            snow.alpha=0.5+Math.random()*0.5;
-            this.addChild(snow);
-            this.snows.push(snow);
-            this.frame=0;
-        }
-
-        this.bellFrame++;
-        if(this.bellFrame>60)
-        {
-            var bell:Bell=new Bell();
-            bell.x = Math.random()*750;
-            bell.y = -20;
-            this.addChild(bell);
-            RabbitData.bells.push(bell);
-            this.bellFrame=0;
-        }
-
-        for(var i:number=0;i<this.snows.length;i++)
-        {
-            var snow:Snow=this.snows[i];
-            if(snow.isRemove&&snow.parent)
-            {
-                snow.parent.removeChild(snow);
-                this.snows.splice(i,1);
-            }
-        }
-        for(var j:number=0;j<RabbitData.bells.length;j++)
-        {
-            var bell:Bell=RabbitData.bells[j];
-            if(bell.isRemove&&bell.parent)
-            {
-                bell.parent.removeChild(bell);
-                RabbitData.bells.splice(j,1);
-            }
-        }
     }
     private textContainer:egret.Sprite;
     /**
