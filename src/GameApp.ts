@@ -189,6 +189,8 @@ class GameApp extends egret.DisplayObjectContainer{
             this.rabbit.act="jump";
             this.Vy=this.Vy+RabbitData.grav;
             var ny:number=this.rabbit.y+this.Vy;
+            if(ny<0)
+            
             if(ny>this.yLand)
             {
                 ny = this.yLand;
