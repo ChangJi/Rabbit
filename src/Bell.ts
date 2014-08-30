@@ -66,9 +66,9 @@ class Bell extends egret.Sprite
             {
                 this.isRemove=true;
 //               RabbitData.bells.remove(this.bell);
-                Bell.reclaim(this.bell,"bell");
-                if(this.bell.parent)
-                     this.bell.parent.removeChild(this.bell);
+                Bell.reclaim(this,"bell");
+                // if(this.bell.parent)
+                    //  this.bell.parent.removeChild(this.bell);
             }
         }
     }
