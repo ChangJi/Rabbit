@@ -32,30 +32,27 @@ var __extends = this.__extends || function (d, b) {
 };
 var egret;
 (function (egret) {
-    /**
-    * @class egret.NetContext
-    * @classdesc
-    * @extends egret.HashObject
-    */
-    var NetContext = (function (_super) {
-        __extends(NetContext, _super);
-        function NetContext() {
-            _super.call(this);
-        }
-        NetContext.prototype.proceed = function (loader) {
-        };
-
-        NetContext._getUrl = function (request) {
-            var url = request.url;
-
-            //get请求没有设置参数，而是设置URLVariables的情况
-            if (url.indexOf("?") == -1 && request.method == egret.URLRequestMethod.GET && request.data && request.data instanceof egret.URLVariables) {
-                url = url + "?" + request.data.toString();
+    (function (gui) {
+        /**
+        * @class egret.gui.Spacer
+        * @classdesc
+        * 占位组件,一个布局辅助类。
+        * 自身完全不可见，但可以在父级容器的布局中分配空间，通常用于垂直和水平布局中，推挤其他组件。
+        * @extends egret.gui.UIComponent
+        */
+        var Spacer = (function (_super) {
+            __extends(Spacer, _super);
+            /**
+            * 构造函数
+            * @method egret.gui.Spacer#constructor
+            */
+            function Spacer() {
+                _super.call(this);
             }
-            return url;
-        };
-        return NetContext;
-    })(egret.HashObject);
-    egret.NetContext = NetContext;
-    NetContext.prototype.__class__ = "egret.NetContext";
+            return Spacer;
+        })(gui.UIComponent);
+        gui.Spacer = Spacer;
+        Spacer.prototype.__class__ = "egret.gui.Spacer";
+    })(egret.gui || (egret.gui = {}));
+    var gui = egret.gui;
 })(egret || (egret = {}));

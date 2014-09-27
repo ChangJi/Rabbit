@@ -177,8 +177,27 @@ var egret;
                     }
                     list.unshift(target);
                 }
-                var targetIndex = list.indexOf(event._target);
-                this._dispatchPropagationEvent(event, list, targetIndex);
+                this._dispatchPropagationEvent(event, list);
+            };
+
+            //todo 此处代码是为了兼容之前的实现，应该尽快更优化的实现后删除
+            Scroller.prototype._dispatchPropagationEvent = function (event, list, targetIndex) {
+                var length = list.length;
+                for (var i = 0; i < length; i++) {
+                    var currentTarget = list[i];
+                    event._currentTarget = currentTarget;
+                    event._target = this;
+                    if (i < targetIndex)
+                        event._eventPhase = 1;
+                    else if (i == targetIndex)
+                        event._eventPhase = 2;
+                    else
+                        event._eventPhase = 3;
+                    currentTarget._notifyListener(event);
+                    if (event._isPropagationStopped || event._isPropagationImmediateStopped) {
+                        break;
+                    }
+                }
             };
 
             /**
@@ -276,7 +295,7 @@ var egret;
             };
 
             Scroller.prototype.onTouchBegin = function (event) {
-                if (event.isDefaultPrevented()) {
+                if (event._isDefaultPrevented) {
                     return;
                 }
                 var canScroll = this.checkScrollPolicy();

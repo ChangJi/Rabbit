@@ -35,7 +35,7 @@ var Snow = (function (_super) {
             this.xs = Math.min(this.xs + this.speed, this.range);
         }
         this.snow.y = this.snow.y + this.ys;
-        if (this.snow.y > 600) {
+        if (this.snow.y > 400) {
             this.removeChild(this.snow);
             this.removeEventListener(egret.Event.ENTER_FRAME, this.enterFrameHandler, this);
             this.isRemove = true;

@@ -32,30 +32,27 @@ var __extends = this.__extends || function (d, b) {
 };
 var egret;
 (function (egret) {
-    /**
-    * @class egret.NetContext
-    * @classdesc
-    * @extends egret.HashObject
-    */
-    var NetContext = (function (_super) {
-        __extends(NetContext, _super);
-        function NetContext() {
-            _super.call(this);
-        }
-        NetContext.prototype.proceed = function (loader) {
-        };
-
-        NetContext._getUrl = function (request) {
-            var url = request.url;
-
-            //get请求没有设置参数，而是设置URLVariables的情况
-            if (url.indexOf("?") == -1 && request.method == egret.URLRequestMethod.GET && request.data && request.data instanceof egret.URLVariables) {
-                url = url + "?" + request.data.toString();
+    (function (gui) {
+        /**
+        * @class egret.gui.ToggleSwitch
+        * @classdesc
+        * 开关按钮
+        * @extends egret.gui.ToggleButtonBase
+        */
+        var ToggleSwitch = (function (_super) {
+            __extends(ToggleSwitch, _super);
+            /**
+            * 构造函数
+            * @method egret.gui.ToggleSwitch#constructor
+            */
+            function ToggleSwitch() {
+                _super.call(this);
+                this.hostComponentKey = "egret.gui.ToggleSwitch";
             }
-            return url;
-        };
-        return NetContext;
-    })(egret.HashObject);
-    egret.NetContext = NetContext;
-    NetContext.prototype.__class__ = "egret.NetContext";
+            return ToggleSwitch;
+        })(gui.ToggleButtonBase);
+        gui.ToggleSwitch = ToggleSwitch;
+        ToggleSwitch.prototype.__class__ = "egret.gui.ToggleSwitch";
+    })(egret.gui || (egret.gui = {}));
+    var gui = egret.gui;
 })(egret || (egret = {}));

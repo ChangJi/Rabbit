@@ -38,6 +38,8 @@ class GameApp extends egret.DisplayObjectContainer{
     private mouseX:number=0;
     private yLand:number=0;
     private oldX:number=0;
+//    private sceneLayer:egret.Sprite;
+//    private bgLayer:egret.Sprite;
     public constructor() {
         super();
         this.addEventListener(egret.Event.ADDED_TO_STAGE,this.onAddToStage,this);
@@ -128,7 +130,7 @@ class GameApp extends egret.DisplayObjectContainer{
     private head:number=1;
     private enterFrameHandler( event:egret.Event):void {
 
-        for(var i:number=0;i<this.snows.length;i++)
+        for(var i:number=0;i<this.snows.length;i++) //清除snow
         {
             var snow:Snow=this.snows[i];
             if(snow.isRemove&&snow.parent)
@@ -137,18 +139,8 @@ class GameApp extends egret.DisplayObjectContainer{
                 this.snows.splice(i,1);
             }
         }
-        for(var j:number=0;j<RabbitData.bells.length;j++)
-        {
-            var bell:Bell=RabbitData.bells[j];
-            if(bell.isRemove&&bell.parent)
-            {
-                bell.parent.removeChild(bell);
-                RabbitData.bells.splice(j,1);
-            }
-        }
-
         this.frame++;
-        if(this.frame>12)
+        if(this.frame>12)//生产snow
         {
             var snow:Snow = new Snow();
             snow.x =  Math.random()*750;
@@ -160,10 +152,36 @@ class GameApp extends egret.DisplayObjectContainer{
             this.frame=0;
         }
 
-        this.bellFrame++;
-        if(this.bellFrame>60)
+        //bell碰撞检测
+        var i = 0;
+        while (i < RabbitData.bells.length)
         {
-            var bell:Bell=Bell.produce("bell");
+            var it:Bell =  RabbitData.bells[i];
+            if (GameUtils.hitTest(this.rabbit,it))
+            {
+                this.Vy = RabbitData.bouncepower;
+                this.rabbit.gotoJumpPlay();
+                it.hit = true;
+            }
+            ++i;
+        }
+        for(var j:number=0;j<RabbitData.bells.length;j++) // 清除bell
+        {
+            var bell:Bell=RabbitData.bells[j];
+            if(bell.isRemove&&bell.parent)
+            {
+                bell.parent.removeChild(bell);
+                RabbitData.bells.splice(j,1);
+            }else{
+                bell.y+=RabbitData.bellspeed;
+            }
+        }
+
+        this.bellFrame++;
+        if(this.bellFrame>30) //生产bell
+        {
+//            var bell:Bell=Bell.produce("bell");
+            var bell:Bell=new Bell();
             bell.x = Math.random()*750;
             bell.y = -20;
             this.addChild(bell);
@@ -171,10 +189,9 @@ class GameApp extends egret.DisplayObjectContainer{
             this.bellFrame=0;
         }
 
-
+        //动作状态切换
         var preAct:String=this.rabbit.act;
         var preHead:number=this.head;
-
         if(this.rabbit.jump==true){
             if(this.mouseX<this.rabbit.x)
             {
@@ -189,30 +206,39 @@ class GameApp extends egret.DisplayObjectContainer{
             this.rabbit.act="jump";
             this.Vy=this.Vy+RabbitData.grav;
             var ny:number=this.rabbit.y+this.Vy;
-            if(ny<0)
-            
+
             if(ny>this.yLand)
             {
+                this.y=0;
                 ny = this.yLand;
                 this.Vy = 0;
                 this.rabbit.jump = false;
                 this.rabbit.act = "run";
             }
             this.rabbit.y=ny;
-            var i = 0;
-            while (i < RabbitData.bells.length)
+
+            //场景移动
+            var div:number;
+            var ynow:number = Math.max(0, -this.rabbit.y + 300);
+            if (this.Vy > 30)
             {
-                var it:Bell =  RabbitData.bells[i];
-                if (GameUtils.hitTest(this.rabbit,it))
+                div = 2;
+                if (this.rabbit.y > 0)
                 {
-//                    alert("..............hit...........");
-                    this.Vy = RabbitData.bouncepower;
-                    this.rabbit.gotoJumpPlay();
-                    it.hit = true;
+                    this.y = 0;//this.stage.stageHeight-400;
                 }
-                ++i;
+                else
+                {
+                    this.y = this.y + (ynow - this.y) / div;
+                }
             }
-        }else{
+            else
+            {
+                div = 10;
+                this.y = this.y + (ynow - this.y) / div;
+            }
+        }
+        else{
             var oldX:number = this.rabbit.x;
             var newX:number=this.mouseX;
             newX = Math.max(this.mouseX,0);
@@ -251,11 +277,6 @@ class GameApp extends egret.DisplayObjectContainer{
             }else{
                 this.rabbit.act = "stand";
             }
-
-//            if (oldX == this.rabbit.x||this.rabbit.x == 0 || this.rabbit.x == 750)
-//            {
-//                    this.rabbit.act = "stand";
-//            }
         }
         if(preAct!=this.rabbit.act||preHead!=this.head)
         {
@@ -264,34 +285,41 @@ class GameApp extends egret.DisplayObjectContainer{
 
     }
     private textContainer:egret.Sprite;
+//    private colorLabel:egret.TextField;
+//    private topMask:egret.Sprite;
     /**
      * 创建游戏场景
      */
     private createGameScene():void{
 
+//        this.bgLayer=new egret.Sprite();
+//        this.addChild(this.bgLayer);
+//        this.sceneLayer=new egret.Sprite();
+//        this.addChild(this.sceneLayer);
+
         var sky:egret.Bitmap = this.createBitmapByName("bg_jpg");
         this.addChild(sky);
-        var stageW:number = this.stage.stageWidth;
-        var stageH:number = this.stage.stageHeight;
+        var stageW:number = 750;//this.stage.stageWidth;
+        var stageH:number = 400;//this.stage.stageHeight;
         sky.width = stageW;
         sky.height = stageH;
 
-        var length:number = 15+Math.random()*10;
+//        this.y=this.stage.stageHeight-400;
+//        var length:number = 15+Math.random()*10;
         this.snows=[];
-        for(var i:number=0;i<length;i++)
-        {
-            var snow:Snow = new Snow();
-            snow.x =  Math.random()*750;
-            snow.y = Math.random()*400;
-            snow.scaleX=snow.scaleY=0.3+Math.random()*0.7;
-            this.addChild(snow);
-            this.snows.push(snow);
-        }
-
+//        for(var i:number=0;i<length;i++)
+//        {
+//            var snow:Snow = new Snow();
+//            snow.x =  Math.random()*750;
+//            snow.y = Math.random()*400;
+//            snow.scaleX=snow.scaleY=0.3+Math.random()*0.7;
+//            this.addChild(snow);
+//            this.snows.push(snow);
+//        }
 
         this.rabbit=new Rabbit();
         this.rabbit.x=100;
-        this.rabbit.y=345;
+        this.rabbit.y=345;//stageH-60;
         this.addChild(this.rabbit);
         this.mouseX=this.rabbit.x;
         this.yLand=this.rabbit.y;
@@ -316,13 +344,13 @@ class GameApp extends egret.DisplayObjectContainer{
 //        rabbitRun.y = 345;
 //        rabbitRun.gotoAndPlay("runmc");
 
-//        var topMask:egret.Shape = new egret.Shape();
-//        topMask.graphics.beginFill(0x000000, 0.5);
-//        topMask.graphics.drawRect(0, 0, stageW, stageH);
-//        topMask.graphics.endFill();
+//        this.topMask = new egret.Sprite;
+//        this.topMask.graphics.beginFill(0xff0000);
+//        this.topMask.graphics.drawCircle(100, 200,20);
+//        this.topMask.graphics.endFill();
 //        topMask.width = stageW;
 //        topMask.height = stageH;
-//        this.addChild(topMask);
+//        this.sceneLayer.addChild(this.topMask);
 //
 //        var icon:egret.Bitmap = this.createBitmapByName("egretIcon");
 //        icon.anchorX = icon.anchorY = 0.5;
@@ -332,15 +360,15 @@ class GameApp extends egret.DisplayObjectContainer{
 //        icon.scaleX = 0.55;
 //        icon.scaleY = 0.55;
 //
-//        var colorLabel:egret.TextField = new egret.TextField();
-//        colorLabel.x = stageW / 2;
-//        colorLabel.y = stageH / 2 + 50;
-//        colorLabel.anchorX = colorLabel.anchorY = 0.5;
-//        colorLabel.textColor = 0xffffff;
-//        colorLabel.textAlign = "center";
-//        colorLabel.text = "Hello Egret";
-//        colorLabel.size = 20;
-//        this.addChild(colorLabel);
+//        this.colorLabel = new egret.TextField();
+//        this.colorLabel.x = 100;
+//        this.colorLabel.y = 200;
+//        this.colorLabel.anchorX =  this.colorLabel.anchorY = 0.5;
+//        this.colorLabel.textColor = 0xff0000;
+//        this.colorLabel.textAlign = "center";
+//        this.colorLabel.text = "Hello Egret";
+//        this.colorLabel.size = 20;
+//        this.sceneLayer.addChild( this.colorLabel);
 //
 //        var textContainer:egret.Sprite = new egret.Sprite();
 //        textContainer.anchorX = textContainer.anchorY = 0.5;

@@ -15,9 +15,11 @@ class GameUtils{
         rect1.x = obj1.x;
         rect1.y = obj1.y;
 
-        var p:egret.Point=obj2.localToGlobal(obj2.bell.x,obj2.bell.y);
-        rect2.x = p.x;
-        rect2.y = p.y;
+//        var p:egret.Point=obj2.localToGlobal(obj2.bell.x,obj2.bell.y);
+//        rect2.x = p.x;
+//        rect2.y = p.y;
+        rect2.x = obj2.x;
+        rect2.y = obj2.y;
         return rect1.intersects(rect2);
     }
 }

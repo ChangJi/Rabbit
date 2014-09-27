@@ -26,49 +26,52 @@ class Bell extends egret.Sprite
     
     private static cacheDict:Object = {};
         /**生产*/
-        public static produce(textureName:string):Bell
-        {
-            if(Bell.cacheDict[textureName]==null)
-                Bell.cacheDict[textureName] = [];
-            var dict:Bell[] = Bell.cacheDict[textureName];
-            var bell:Bell;
-            if(dict.length>0) {
-                bell = dict.pop();
-            } else {
-                bell = Bell();
-            }
-            // bullet.textureName = textureName;
-            return bell;
-        }
+//        public static produce(textureName:string):Bell
+//        {
+//            if(Bell.cacheDict[textureName]==null)
+//                Bell.cacheDict[textureName] = [];
+//            var dict:Bell[] = Bell.cacheDict[textureName];
+//            var bell:Bell;
+//            if(dict.length>0) {
+//                bell = dict.pop();
+//            } else {
+//                bell = new Bell();
+//            }
+//            // bullet.textureName = textureName;
+//            return bell;
+//        }
      /**回收*/
-        public static reclaim(bell:Bell,textureName:string):void
-        {
-            if(Bell.cacheDict[textureName]==null)
-                Bell.cacheDict[textureName] = [];
-            var dict:Bell[] = Bell.cacheDict[textureName];
-            if(dict.indexOf(bell)==-1)
-                dict.push(bell);
-        }
+//        public static reclaim(bell:Bell,textureName:string):void
+//        {
+//            if(Bell.cacheDict[textureName]==null)
+//                Bell.cacheDict[textureName] = [];
+//            var dict:Bell[] = Bell.cacheDict[textureName];
+//            if(dict.indexOf(bell)==-1)
+//                dict.push(bell);
+//        }
 
     private enterFrameHandler(event:egret.Event):void
     {
-        this.bell.y+=this.ys;
+//        this.bell.y+=this.ys;
         if(this.hit)
         {
 //           RabbitData.bells.splice()
 //            this.bell.gotoAndPlay("hit");
-//            this.isRemove=true;
+            this.isRemove=true;
+            this.bell.dispose();
 //            if(this.bell.parent)
 //                this.bell.parent.removeChild(this.bell);
-        }else if(this.bell.y>600){
+        }
+        else if(this.y>400){
             this.bell.alpha-=0.5;
             if(this.bell.alpha<0)
             {
                 this.isRemove=true;
+                this.bell.dispose();
 //               RabbitData.bells.remove(this.bell);
-                Bell.reclaim(this,"bell");
-                // if(this.bell.parent)
-                    //  this.bell.parent.removeChild(this.bell);
+//                Bell.reclaim(this,"bell");
+//                if(this.bell.parent)
+//                      this.bell.parent.removeChild(this.bell);
             }
         }
     }
