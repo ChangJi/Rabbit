@@ -152,24 +152,27 @@ var GameApp = (function (_super) {
                 this.rabbit.gotoJumpPlay();
                 it.hit = true;
             }
-            ++i;
-        }
-        for (var j = 0; j < RabbitData.bells.length; j++) {
-            var bell = RabbitData.bells[j];
-            if (bell.isRemove && bell.parent) {
-                bell.parent.removeChild(bell);
-                RabbitData.bells.splice(j, 1);
+
+            if (it.isRemove || it.y > 400) {
+                this.removeChild(it);
+                RabbitData.bells.splice(i, 1);
             } else {
-                bell.y += RabbitData.bellspeed;
+                it.y += RabbitData.bellspeed;
             }
+            ++i;
         }
 
         this.bellFrame++;
         if (this.bellFrame > 30) {
-            //            var bell:Bell=Bell.produce("bell");
             var bell = new Bell();
-            bell.x = Math.random() * 750;
-            bell.y = -20;
+            if (RabbitData.bells.length > 1) {
+                var lastBell = RabbitData.bells[RabbitData.bells.length - 1];
+                bell.x = GameUtils.getclosepos(lastBell.x, RabbitData.bxspacing); //Math.random()*750;
+                bell.y = lastBell.y - RabbitData.byspacing;
+            } else {
+                bell.x = Math.random() * 750;
+                bell.y = -20;
+            }
             this.addChild(bell);
             RabbitData.bells.push(bell);
             this.bellFrame = 0;
@@ -215,6 +218,7 @@ var GameApp = (function (_super) {
                 div = 10;
                 this.y = this.y + (ynow - this.y) / div;
             }
+            // 判断 兔子和最后一个Bell距离 生产 MainMove最下面
         } else {
             var oldX = this.rabbit.x;
             var newX = this.mouseX;
@@ -254,8 +258,6 @@ var GameApp = (function (_super) {
         }
     };
 
-    //    private colorLabel:egret.TextField;
-    //    private topMask:egret.Sprite;
     /**
     * 创建游戏场景
     */

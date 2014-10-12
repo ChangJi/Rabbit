@@ -22,4 +22,26 @@ class GameUtils{
         rect2.y = obj2.y;
         return rect1.intersects(rect2);
     }
+    public static getclosepos(x:number, space:number):number
+    {
+        var sp = 40 + Math.random()*(Math.floor(space - 40));
+        var posx:number;
+        if (Math.random()*100 > 50)
+        {
+            posx = x + sp;
+            if (posx > 700)
+            {
+                posx = x - sp;
+            }
+        }
+        else
+        {
+            posx = x - sp;
+            if (posx < 50)
+            {
+                posx = x + sp;
+            }
+        }
+        return posx;
+    }
 }

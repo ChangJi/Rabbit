@@ -58,19 +58,20 @@ var Bell = (function (_super) {
             //           RabbitData.bells.splice()
             //            this.bell.gotoAndPlay("hit");
             this.isRemove = true;
-            this.bell.dispose();
+            //            this.bell.dispose();
             //            if(this.bell.parent)
             //                this.bell.parent.removeChild(this.bell);
         } else if (this.y > 400) {
-            this.bell.alpha -= 0.5;
-            if (this.bell.alpha < 0) {
-                this.isRemove = true;
-                this.bell.dispose();
-                //               RabbitData.bells.remove(this.bell);
-                //                Bell.reclaim(this,"bell");
-                //                if(this.bell.parent)
-                //                      this.bell.parent.removeChild(this.bell);
-            }
+            //            this.bell.alpha-=0.5;
+            //            if(this.bell.alpha<0)
+            //            {
+            //                this.isRemove=true;
+            //                this.bell.dispose();
+            ////               RabbitData.bells.remove(this.bell);
+            ////                Bell.reclaim(this,"bell");
+            ////                if(this.bell.parent)
+            ////                      this.bell.parent.removeChild(this.bell);
+            //            }
         }
     };
     Bell.cacheDict = {};

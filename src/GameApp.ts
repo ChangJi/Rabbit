@@ -163,27 +163,30 @@ class GameApp extends egret.DisplayObjectContainer{
                 this.rabbit.gotoJumpPlay();
                 it.hit = true;
             }
-            ++i;
-        }
-        for(var j:number=0;j<RabbitData.bells.length;j++) // 清除bell
-        {
-            var bell:Bell=RabbitData.bells[j];
-            if(bell.isRemove&&bell.parent)
+
+            if(it.isRemove||it.y>400)  // 清除bell
             {
-                bell.parent.removeChild(bell);
-                RabbitData.bells.splice(j,1);
+                this.removeChild(it);
+                RabbitData.bells.splice(i,1);
             }else{
-                bell.y+=RabbitData.bellspeed;
+                it.y+=RabbitData.bellspeed;
             }
+            ++i;
         }
 
         this.bellFrame++;
         if(this.bellFrame>30) //生产bell
         {
-//            var bell:Bell=Bell.produce("bell");
             var bell:Bell=new Bell();
-            bell.x = Math.random()*750;
-            bell.y = -20;
+            if(RabbitData.bells.length>1)
+            {
+                var lastBell:Bell=RabbitData.bells[RabbitData.bells.length-1];
+                bell.x = GameUtils.getclosepos(lastBell.x,RabbitData.bxspacing); //Math.random()*750;
+                bell.y = lastBell.y - RabbitData.byspacing;
+            }else{
+                bell.x = Math.random()*750;
+                bell.y = -20;
+            }
             this.addChild(bell);
             RabbitData.bells.push(bell);
             this.bellFrame=0;
@@ -237,6 +240,8 @@ class GameApp extends egret.DisplayObjectContainer{
                 div = 10;
                 this.y = this.y + (ynow - this.y) / div;
             }
+
+            // 判断 兔子和最后一个Bell距离 生产 MainMove最下面
         }
         else{
             var oldX:number = this.rabbit.x;
@@ -285,8 +290,6 @@ class GameApp extends egret.DisplayObjectContainer{
 
     }
     private textContainer:egret.Sprite;
-//    private colorLabel:egret.TextField;
-//    private topMask:egret.Sprite;
     /**
      * 创建游戏场景
      */

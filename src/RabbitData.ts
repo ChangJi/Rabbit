@@ -8,4 +8,6 @@ class RabbitData{
     public static grav:number=1;
     public static bouncepower:number=-18;
     public static pspeed:number=5;
+    public static bxspacing:number=150;
+    public static byspacing:number=80;
 }

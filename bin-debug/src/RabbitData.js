@@ -10,6 +10,8 @@ var RabbitData = (function () {
     RabbitData.grav = 1;
     RabbitData.bouncepower = -18;
     RabbitData.pspeed = 5;
+    RabbitData.bxspacing = 150;
+    RabbitData.byspacing = 80;
     return RabbitData;
 })();
 RabbitData.prototype.__class__ = "RabbitData";
